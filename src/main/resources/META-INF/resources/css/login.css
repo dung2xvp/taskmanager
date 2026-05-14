@@ -1,0 +1,256 @@
+/* =============================================
+   LOGIN PAGE STYLES
+   ============================================= */
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* ---- Left Panel: Branding ---- */
+.login-brand {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--space-12) 64px;
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0d1117 100%);
+    overflow: hidden;
+}
+
+.login-brand::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    top: -100px;
+    left: -100px;
+    animation: pulse-glow 6s ease-in-out infinite alternate;
+}
+
+.login-brand::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+    bottom: 50px;
+    right: -50px;
+    animation: pulse-glow 8s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes pulse-glow {
+    from { transform: scale(1) translateY(0); opacity: 0.8; }
+    to   { transform: scale(1.15) translateY(-20px); opacity: 1; }
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-12);
+    z-index: 1;
+}
+
+.brand-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: var(--shadow-glow);
+}
+
+.brand-name {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.brand-tagline {
+    z-index: 1;
+    margin-bottom: var(--space-8);
+}
+
+.brand-tagline h1 {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #fff 30%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-4);
+}
+
+.brand-tagline p {
+    font-size: var(--text-md);
+    color: var(--text-secondary);
+    max-width: 380px;
+    line-height: 1.7;
+}
+
+.brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    z-index: 1;
+}
+
+.brand-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.brand-feature-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+/* ---- Floating Kanban Preview ---- */
+.kanban-preview {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-5deg);
+    display: flex;
+    gap: var(--space-3);
+    z-index: 1;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.kanban-col-preview {
+    width: 100px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.kanban-card-preview {
+    height: 28px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+}
+
+/* ---- Right Panel: Form ---- */
+.login-form-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-12) 64px;
+    background: var(--bg-surface);
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+}
+
+/* ---- Tabs ---- */
+.auth-tabs {
+    display: flex;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-lg);
+    padding: var(--space-1);
+    margin-bottom: var(--space-8);
+    border: 1px solid var(--border);
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.auth-tab.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+/* ---- Form ---- */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.auth-form-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.auth-form-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+    margin: var(--space-2) 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+    .login-brand {
+        display: none;
+    }
+    .login-form-panel {
+        padding: var(--space-8) var(--space-6);
+    }
+}

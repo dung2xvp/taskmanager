@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="TaskFlow — Kanban Board"/>
+    <title>Board — TaskFlow</title>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/css/board.css"/>
+</head>
+<body>
+
+<div class="board-page" id="board-page">
+
+    <!-- ======== NAVBAR ======== -->
+    <header class="board-navbar">
+        <div class="board-navbar-left">
+            <a href="/dashboard.html" class="btn btn-ghost btn-sm nav-back-btn" id="btn-back">
+                ← Bảng của tôi
+            </a>
+            <div class="board-nav-divider"></div>
+            <div class="board-nav-title" id="board-title-display">Đang tải...</div>
+        </div>
+
+        <a href="/dashboard.html" class="navbar-brand-center">
+            <div class="brand-icon">⚡</div>
+            <span class="brand-name">TaskFlow</span>
+        </a>
+
+        <div class="board-navbar-right">
+            <div class="board-members-preview" id="board-members-preview">
+                <!-- Avatar members -->
+            </div>
+            <div id="nav-avatar" class="user-avatar">U</div>
+            <button id="btn-logout" class="btn btn-ghost btn-sm">Đăng xuất</button>
+        </div>
+    </header>
+
+    <!-- ======== BOARD HEADER ======== -->
+    <div class="board-header" id="board-header">
+        <div class="board-header-info">
+            <h1 class="board-name" id="board-name-heading">...</h1>
+            <span class="board-visibility-tag" id="board-visibility-tag"></span>
+        </div>
+    </div>
+
+    <!-- ======== KANBAN COLUMNS ======== -->
+    <div class="kanban-scroll-wrapper">
+        <div class="kanban-board" id="kanban-board">
+            <!-- Skeleton loading -->
+            <div class="list-skeleton"></div>
+            <div class="list-skeleton"></div>
+            <div class="list-skeleton"></div>
+
+            <!-- Nút thêm List mới -->
+            <div class="add-list-btn" id="add-list-btn" style="display:none">
+                <button class="btn-add-list" onclick="showAddListForm()">
+                    <span>+</span> Tạo cột danh sách công việc
+                </button>
+                <div class="add-list-form" id="add-list-form" style="display:none">
+                    <input id="new-list-name"
+                           class="form-input"
+                           type="text"
+                           placeholder="VD: To Do, Đang làm, Hoàn thành..."
+                           maxlength="100"
+                           autocomplete="off"/>
+                    <div class="add-list-actions">
+                        <button class="btn btn-primary btn-sm" onclick="submitAddList()">Thêm</button>
+                        <button class="btn btn-ghost btn-sm" onclick="hideAddListForm()">Huỷ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======== MODAL: Chi tiết Card ======== -->
+<div id="card-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="card-modal" id="card-modal">
+        <div class="card-modal-header">
+            <div class="card-modal-title-wrap">
+                <div class="card-modal-icon">📋</div>
+                <textarea class="card-modal-title-input" id="card-modal-title" rows="1" placeholder="Tên thẻ..."></textarea>
+            </div>
+            <button class="modal-close" id="card-modal-close">✕</button>
+        </div>
+        <div class="card-modal-body">
+            <div class="card-modal-main">
+                <div class="card-modal-section">
+                    <div class="card-section-label">📝 Mô tả</div>
+                    <textarea class="card-modal-desc-input" id="card-modal-desc" rows="4" placeholder="Thêm mô tả chi tiết hơn..."></textarea>
+                    <div style="margin-top: 8px; display: none;" id="card-desc-actions">
+                        <button class="btn btn-primary btn-sm" id="btn-save-desc">Lưu</button>
+                        <button class="btn btn-ghost btn-sm" id="btn-cancel-desc">Huỷ</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-modal-sidebar">
+                <div class="card-sidebar-label">Thành viên</div>
+                <div class="card-sidebar-members" id="card-modal-members"></div>
+                <div class="card-sidebar-label" style="margin-top:16px">Nhãn</div>
+                <div class="card-sidebar-labels" id="card-modal-labels"></div>
+                <div class="card-sidebar-label" style="margin-top:16px">Deadline</div>
+                <input type="date" class="form-input" id="card-modal-due" style="width: 100%; padding: 6px; font-size: 13px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<script src="/js/board.js"></script>
+</body>
+</html>

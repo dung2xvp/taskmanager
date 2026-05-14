@@ -63,45 +63,59 @@ public class BoardQueryService {
         }
 
         List<BoardMemberDto> members = boardMemberDao.findByBoardId(boardId).stream()
-                .map(member -> new BoardMemberDto(
-                        member.user.id,
-                        member.user.username,
-                        member.user.fullName,
-                        member.role
-                ))
+                .map(member -> {
+                    BoardMemberDto dto = new BoardMemberDto();
+                    dto.userId   = member.user.id;
+                    dto.username = member.user.username;
+                    dto.fullName = member.user.fullName;
+                    dto.role     = member.role;
+                    return dto;
+                })
                 .toList();
 
         List<LabelDto> labels = labelDao.findByBoardId(boardId).stream()
-                .map(label -> new LabelDto(label.id, label.name, label.color))
+                .map(label -> {
+                    LabelDto dto = new LabelDto();
+                    dto.id    = label.id;
+                    dto.name  = label.name;
+                    dto.color = label.color;
+                    return dto;
+                })
                 .toList();
 
-        List<BoardList> lists = boardListDao.findByBoardId(boardId);
-        List<Card> cards = cardDao.findActiveByBoardId(boardId);
+        List<BoardList> lists     = boardListDao.findByBoardId(boardId);
+        List<Card> cards          = cardDao.findActiveByBoardId(boardId);
         List<CardMember> cardMembers = cardMemberDao.findByBoardId(boardId);
-        List<CardLabel> cardLabels = cardLabelDao.findByBoardId(boardId);
+        List<CardLabel> cardLabels   = cardLabelDao.findByBoardId(boardId);
 
         Map<Long, List<Long>> memberIdsByCard = groupMemberIdsByCard(cardMembers);
-        Map<Long, List<Long>> labelIdsByCard = groupLabelIdsByCard(cardLabels);
-        Map<Long, List<CardDto>> cardsByList = groupCardsByList(cards, memberIdsByCard, labelIdsByCard);
+        Map<Long, List<Long>> labelIdsByCard  = groupLabelIdsByCard(cardLabels);
+        Map<Long, List<CardDto>> cardsByList  = groupCardsByList(cards, memberIdsByCard, labelIdsByCard);
 
         List<BoardListDto> listDtos = lists.stream()
-                .map(list -> new BoardListDto(
-                        list.id,
-                        list.name,
-                        list.position,
-                        cardsByList.getOrDefault(list.id, List.of())
-                ))
+                .map(list -> {
+                    BoardListDto dto = new BoardListDto();
+                    dto.id       = list.id;
+                    dto.name     = list.name;
+                    dto.position = list.position;
+                    dto.cards    = cardsByList.getOrDefault(list.id, List.of());
+                    return dto;
+                })
                 .toList();
 
-        BoardSummaryDto boardSummary = new BoardSummaryDto(
-                board.id,
-                board.name,
-                board.description,
-                board.owner.id,
-                board.visibility
-        );
+        BoardSummaryDto boardSummary = new BoardSummaryDto();
+        boardSummary.id          = board.id;
+        boardSummary.name        = board.name;
+        boardSummary.description = board.description;
+        boardSummary.ownerId     = board.owner.id;
+        boardSummary.visibility  = board.visibility;
 
-        return new BoardStateDto(boardSummary, members, labels, listDtos);
+        BoardStateDto result = new BoardStateDto();
+        result.board   = boardSummary;
+        result.members = members;
+        result.labels  = labels;
+        result.lists   = listDtos;
+        return result;
     }
 
     private Map<Long, List<Long>> groupMemberIdsByCard(List<CardMember> cardMembers) {
@@ -131,18 +145,18 @@ public class BoardQueryService {
                 throw new WebApplicationException("Card has invalid list reference", Response.Status.CONFLICT);
             }
 
-            CardDto cardDto = new CardDto(
-                    card.id,
-                    card.list.id,
-                    card.title,
-                    card.description,
-                    card.position,
-                    card.startDate,
-                    card.dueDate,
-                    card.coverColor,
-                    memberIdsByCard.getOrDefault(card.id, List.of()),
-                    labelIdsByCard.getOrDefault(card.id, List.of())
-            );
+            CardDto cardDto = new CardDto();
+            cardDto.id          = card.id;
+            cardDto.listId      = card.list.id;
+            cardDto.title       = card.title;
+            cardDto.description = card.description;
+            cardDto.position    = card.position;
+            cardDto.startDate   = card.startDate;
+            cardDto.dueDate     = card.dueDate;
+            cardDto.coverColor  = card.coverColor;
+            cardDto.memberIds   = memberIdsByCard.getOrDefault(card.id, List.of());
+            cardDto.labelIds    = labelIdsByCard.getOrDefault(card.id, List.of());
+
             result.computeIfAbsent(card.list.id, ignored -> new ArrayList<>()).add(cardDto);
         }
         return result;

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="TaskFlow — Quản lý công việc nhóm thời gian thực"/>
+    <title>TaskFlow - Công cụ quản lý công việc tối ưu</title>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/css/landing.css"/>
+</head>
+<body>
+
+<div class="landing-page">
+
+    <!-- NAVBAR -->
+    <nav class="landing-navbar">
+        <a href="/" class="brand-logo">
+            <div class="brand-icon">⚡</div>
+            <span class="brand-name">TaskFlow</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/login.html" class="btn btn-ghost" id="nav-login-btn">Đăng nhập</a>
+            <a href="/login.html?tab=register" class="btn btn-primary">Bắt đầu miễn phí</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <main class="hero-section">
+        <div class="hero-badge">✨ Ra mắt phiên bản 1.0</div>
+        <h1 class="hero-title">Quản lý dự án thông minh với <span>TaskFlow</span></h1>
+        <p class="hero-subtitle">
+            Nâng tầm hiệu suất làm việc nhóm với giải pháp Kanban mạnh mẽ, trực quan và đồng bộ dữ liệu theo thời gian thực.
+        </p>
+        <div class="hero-actions">
+            <a href="/login.html?tab=register" class="btn btn-primary btn-lg" style="padding: 14px 32px; font-size: 16px;">Bắt đầu sử dụng ngay</a>
+            <a href="#features" class="btn btn-ghost btn-lg" style="padding: 14px 32px; font-size: 16px; border: 1px solid var(--border);">Khám phá tính năng</a>
+        </div>
+    </main>
+
+    <!-- FEATURES SECTION -->
+    <section id="features" class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🗂️</div>
+                <h3 class="feature-title">Bảng Kanban trực quan</h3>
+                <p class="feature-desc">Kéo và thả các thẻ công việc qua các bước quy trình một cách mượt mà. Giúp toàn đội nắm bắt tiến độ dự án chỉ trong nháy mắt.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Cập nhật Real-time</h3>
+                <p class="feature-desc">Mọi thay đổi từ đồng đội đều được đồng bộ ngay lập tức lên màn hình của bạn mà không cần tải lại trang. Chấm dứt tình trạng trễ thông tin.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">Cộng tác dễ dàng</h3>
+                <p class="feature-desc">Phân công công việc, đặt deadline, và ghi chú mô tả chi tiết. Tích hợp đầy đủ mọi công cụ để team của bạn luôn gắn kết.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="landing-footer">
+        <p>&copy; 2026 TaskFlow. Phát triển bởi Nhóm 10 Web bằng Java.</p>
+    </footer>
+
+</div>
+
+<script>
+    // Nếu người dùng đã đăng nhập, đổi nút Đăng nhập thành Vào Dashboard
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const loginBtn = document.getElementById('nav-login-btn');
+            if (loginBtn) {
+                loginBtn.textContent = 'Đến Dashboard →';
+                loginBtn.href = '/dashboard.html';
+                loginBtn.classList.remove('btn-ghost');
+                loginBtn.classList.add('btn-primary');
+                loginBtn.style.background = 'var(--bg-surface)';
+                loginBtn.style.color = 'var(--text-primary)';
+                loginBtn.style.border = '1px solid var(--border)';
+            }
+            
+            // Cập nhật các nút "Bắt đầu miễn phí"
+            document.querySelectorAll('a[href="/login.html?tab=register"]').forEach(el => {
+                el.href = '/dashboard.html';
+                el.textContent = 'Mở Bảng công việc';
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

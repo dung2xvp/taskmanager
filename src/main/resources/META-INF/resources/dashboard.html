@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="TaskFlow — Danh sách bảng làm việc của bạn"/>
+    <title>Dashboard — TaskFlow</title>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/css/dashboard.css"/>
+</head>
+<body>
+
+<div class="dashboard-page">
+
+    <!-- ======== NAVBAR ======== -->
+    <header class="navbar">
+        <a href="/dashboard.html" class="navbar-brand">
+            <div class="brand-icon">⚡</div>
+            <span class="brand-name">TaskFlow</span>
+        </a>
+
+        <div class="navbar-right">
+            <div class="user-info">
+                <div id="nav-avatar" class="user-avatar">U</div>
+                <span id="nav-username" class="user-name">User</span>
+            </div>
+            <button id="btn-logout" class="btn btn-ghost btn-sm">
+                Đăng xuất
+            </button>
+        </div>
+    </header>
+
+    <!-- ======== MAIN ======== -->
+    <main class="dashboard-main">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Bảng của tôi</h1>
+                <p class="dashboard-subtitle">Quản lý và theo dõi công việc nhóm theo mô hình Kanban</p>
+            </div>
+            <button id="btn-create-board" class="btn btn-primary">
+                + Tạo bảng mới
+            </button>
+        </div>
+
+        <!-- Board Grid -->
+        <div id="board-grid" class="board-grid">
+            <!-- Được render bởi dashboard.js -->
+        </div>
+
+    </main>
+</div>
+
+<!-- ======== MODAL Tạo Board ======== -->
+<div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modal-title" class="modal-title">Tạo bảng mới</h2>
+            <button id="modal-close-btn" class="modal-close" aria-label="Đóng">✕</button>
+        </div>
+
+        <form id="create-board-form" class="modal-form" novalidate>
+            <div class="form-group">
+                <label class="form-label" for="board-name">Tên bảng <span style="color: var(--danger)">*</span></label>
+                <input id="board-name"
+                       class="form-input"
+                       type="text"
+                       placeholder="VD: Website Redesign, Sprint 1..."
+                       maxlength="150"
+                       required/>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="board-desc">Mô tả</label>
+                <input id="board-desc"
+                       class="form-input"
+                       type="text"
+                       placeholder="Mô tả ngắn về mục tiêu của bảng này (tuỳ chọn)"
+                       maxlength="1000"/>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Huỷ</button>
+                <button id="create-board-btn" type="submit" class="btn btn-primary">
+                    Tạo bảng
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

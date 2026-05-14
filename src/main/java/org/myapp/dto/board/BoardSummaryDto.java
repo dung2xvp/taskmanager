@@ -2,11 +2,11 @@ package org.myapp.dto.board;
 
 import org.myapp.entity.BoardVisibility;
 
-public record BoardSummaryDto(
-        Long id,
-        String name,
-        String description,
-        Long ownerId,
-        BoardVisibility visibility
-) {
+public class BoardSummaryDto {
+
+    public Long id;
+    public String name;
+    public String description;
+    public Long ownerId;
+    public BoardVisibility visibility;
 }

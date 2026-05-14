@@ -14,7 +14,7 @@ values (1, now(), now(), 0, false, 'Product Roadmap', 'Demo board for Trello-sty
 on conflict (id) do nothing;
 
 insert into board_members (id, created_at, updated_at, version, joined_at, role, board_id, user_id)
-values (1, now(), now(), 0, now(), 'ADMIN', 1, 1)
+values (1, now(), now(), 0, now(), 'OWNER', 1, 1)
 on conflict (board_id, user_id) do nothing;
 
 insert into board_members (id, created_at, updated_at, version, joined_at, role, board_id, user_id)

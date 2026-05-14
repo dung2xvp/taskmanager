@@ -1,7 +1,7 @@
 package org.myapp.entity;
 
 public enum BoardRole {
-    ADMIN,
+    OWNER,
     MEMBER,
     VIEWER
 }

@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(
         name = "board_lists",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"board_id", "name"}),
         indexes = {
                 @Index(name = "idx_board_list_board_pos", columnList = "board_id,position")
         }
