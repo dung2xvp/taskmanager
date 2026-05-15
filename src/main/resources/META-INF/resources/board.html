@@ -16,7 +16,7 @@
     <header class="board-navbar">
         <div class="board-navbar-left">
             <a href="/dashboard.html" class="btn btn-ghost btn-sm nav-back-btn" id="btn-back">
-                ← Bảng của tôi
+                ← Workspace của tôi
             </a>
             <div class="board-nav-divider"></div>
             <div class="board-nav-title" id="board-title-display">Đang tải...</div>
@@ -31,7 +31,9 @@
             <div class="board-members-preview" id="board-members-preview">
                 <!-- Avatar members -->
             </div>
-            <div id="nav-avatar" class="user-avatar">U</div>
+            <a href="/profile.html" title="Xem hồ sơ cá nhân" style="text-decoration:none;">
+                <div id="nav-avatar" class="user-avatar">U</div>
+            </a>
             <button id="btn-logout" class="btn btn-ghost btn-sm">Đăng xuất</button>
         </div>
     </header>
@@ -41,6 +43,7 @@
         <div class="board-header-info">
             <h1 class="board-name" id="board-name-heading">...</h1>
             <span class="board-visibility-tag" id="board-visibility-tag"></span>
+            <button class="btn btn-ghost btn-sm" id="btn-invite-member" style="margin-left: 12px; border: 1px dashed var(--border); padding: 4px 12px; font-size: 13px;">+ Mời thành viên</button>
         </div>
     </div>
 
@@ -94,11 +97,33 @@
                         <button class="btn btn-ghost btn-sm" id="btn-cancel-desc">Huỷ</button>
                     </div>
                 </div>
+                </div>
+                
+                <div class="card-modal-section" style="margin-top: 24px;">
+                    <div class="card-section-label">💬 Bình luận</div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div class="member-avatar-sm" id="current-user-avatar" style="margin-top: 4px;">?</div>
+                        <div style="flex:1;">
+                            <textarea class="card-modal-desc-input" id="new-comment-input" rows="2" placeholder="Viết bình luận..." style="min-height: 40px; margin-bottom: 8px;"></textarea>
+                            <button class="btn btn-primary btn-sm" id="btn-post-comment">Lưu</button>
+                        </div>
+                    </div>
+                    <div id="card-comments-list" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Comments will be injected here -->
+                    </div>
+                </div>
             </div>
             <div class="card-modal-sidebar">
-                <div class="card-sidebar-label">Thành viên</div>
+                <div class="card-sidebar-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    Thành viên
+                    <button class="btn btn-ghost btn-sm" id="btn-add-member" style="padding: 2px 6px; font-size: 14px; line-height: 1;">+</button>
+                </div>
                 <div class="card-sidebar-members" id="card-modal-members"></div>
-                <div class="card-sidebar-label" style="margin-top:16px">Nhãn</div>
+                
+                <div class="card-sidebar-label" style="margin-top:16px; display: flex; justify-content: space-between; align-items: center;">
+                    Nhãn
+                    <button class="btn btn-ghost btn-sm" id="btn-add-label" style="padding: 2px 6px; font-size: 14px; line-height: 1;">+</button>
+                </div>
                 <div class="card-sidebar-labels" id="card-modal-labels"></div>
                 <div class="card-sidebar-label" style="margin-top:16px">Deadline</div>
                 <input type="date" class="form-input" id="card-modal-due" style="width: 100%; padding: 6px; font-size: 13px;">

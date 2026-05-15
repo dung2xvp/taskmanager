@@ -23,6 +23,8 @@ if (!boardId) { window.location.href = '/dashboard.html'; }
 
 // Cập nhật avatar navbar
 document.getElementById('nav-avatar').textContent = fullName.charAt(0).toUpperCase();
+const curAvatar = document.getElementById('current-user-avatar');
+if (curAvatar) curAvatar.textContent = fullName.charAt(0).toUpperCase();
 
 // State toàn cục
 let boardState = null; // BoardStateDto
@@ -466,22 +468,13 @@ function openCardModal(card, members, labels) {
     document.getElementById('card-desc-actions').style.display = 'none';
 
     // Members
-    const membersEl = document.getElementById('card-modal-members');
-    membersEl.innerHTML = (card.memberIds || [])
-        .map(id => members?.find(m => m.userId === id))
-        .filter(Boolean)
-        .map(m => `<div class="member-avatar-sm" title="${escapeHtml(m.fullName || m.username)}">
-                     ${(m.fullName || m.username || '?').charAt(0).toUpperCase()}
-                   </div>`)
-        .join('') || '<span style="color:var(--text-muted);font-size:12px">Chưa có</span>';
+    renderCardModalMembers();
 
     // Labels
-    const labelsEl = document.getElementById('card-modal-labels');
-    labelsEl.innerHTML = (card.labelIds || [])
-        .map(id => labels?.find(l => l.id === id))
-        .filter(Boolean)
-        .map(l => `<span class="card-label-chip" style="background:${l.color}">${escapeHtml(l.name)}</span>`)
-        .join('') || '<span style="color:var(--text-muted);font-size:12px">Chưa có</span>';
+    renderCardModalLabels();
+
+    // Load comments
+    loadComments(card.id);
 
     // Due date
     const dueEl = document.getElementById('card-modal-due');
@@ -592,6 +585,250 @@ async function updateCardDetails(card) {
         showToast('Lưu thay đổi thất bại', 'error');
     }
 }
+
+// =============================================
+// Render Members & Labels in Modal
+// =============================================
+function renderCardModalMembers() {
+    const membersEl = document.getElementById('card-modal-members');
+    membersEl.innerHTML = (currentOpenedCard.memberIds || [])
+        .map(id => boardState.members?.find(m => m.userId === id))
+        .filter(Boolean)
+        .map(m => `<div class="member-avatar-sm" title="${escapeHtml(m.fullName || m.username)}">
+                     ${(m.fullName || m.username || '?').charAt(0).toUpperCase()}
+                   </div>`)
+        .join('') || '<span style="color:var(--text-muted);font-size:12px">Chưa có</span>';
+}
+
+function renderCardModalLabels() {
+    const labelsEl = document.getElementById('card-modal-labels');
+    labelsEl.innerHTML = (currentOpenedCard.labelIds || [])
+        .map(id => boardState.labels?.find(l => l.id === id))
+        .filter(Boolean)
+        .map(l => `<span class="card-label-chip" style="background:${l.color}">${escapeHtml(l.name)}</span>`)
+        .join('') || '<span style="color:var(--text-muted);font-size:12px">Chưa có</span>';
+}
+
+// =============================================
+// Comments
+// =============================================
+async function loadComments(cardId) {
+    const listEl = document.getElementById('card-comments-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<span style="color:var(--text-muted);font-size:12px">Đang tải bình luận...</span>';
+    
+    const res = await apiFetch(`/lists/cards/${cardId}/comments`);
+    if (res.ok) {
+        const comments = await res.json();
+        if (comments.length === 0) {
+            listEl.innerHTML = '<span style="color:var(--text-muted);font-size:12px">Chưa có bình luận nào.</span>';
+        } else {
+            listEl.innerHTML = comments.map(c => `
+                <div style="display:flex; gap:12px;">
+                    <div class="member-avatar-sm">${(c.authorName || '?').charAt(0).toUpperCase()}</div>
+                    <div style="flex:1;">
+                        <div style="margin-bottom:4px;">
+                            <strong>${escapeHtml(c.authorName)}</strong>
+                            <span style="color:var(--text-muted); font-size:12px; margin-left:8px;">
+                                ${new Date(c.createdAt).toLocaleString('vi-VN')}
+                            </span>
+                        </div>
+                        <div style="background:var(--bg-elevated); padding:8px 12px; border-radius:var(--radius-md); border:1px solid var(--border); font-size:14px; line-height:1.5;">
+                            ${escapeHtml(c.content).replace(/\\n/g, '<br/>')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } else {
+        listEl.innerHTML = '<span style="color:var(--text-muted);font-size:12px">Lỗi khi tải bình luận.</span>';
+    }
+}
+
+document.getElementById('btn-post-comment').addEventListener('click', async () => {
+    if (!currentOpenedCard) return;
+    const input = document.getElementById('new-comment-input');
+    const content = input.value.trim();
+    if (!content) return;
+    
+    const btn = document.getElementById('btn-post-comment');
+    btn.disabled = true;
+    
+    const res = await apiFetch(`/lists/cards/${currentOpenedCard.id}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ content })
+    });
+    
+    btn.disabled = false;
+    
+    if (res.ok) {
+        input.value = '';
+        loadComments(currentOpenedCard.id);
+    } else {
+        showToast('Lỗi khi gửi bình luận', 'error');
+    }
+});
+
+// =============================================
+// Assign Members & Labels
+// =============================================
+let activePopup = null;
+function closePopup() {
+    if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+    }
+}
+document.addEventListener('click', closePopup);
+
+function updateOuterCard(card) {
+    const oldCard = document.querySelector(`[data-card-id="${card.id}"]`);
+    if (oldCard) {
+        const newCard = createCardElement(card, boardState.members, boardState.labels);
+        oldCard.parentNode.replaceChild(newCard, oldCard);
+    }
+}
+
+document.getElementById('btn-add-member').addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePopup();
+    if (!currentOpenedCard || !boardState?.members) return;
+    
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    
+    const menu = document.createElement('div');
+    menu.className = 'dropdown-menu';
+    menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+    menu.style.left = `${rect.left + window.scrollX - 150}px`;
+    menu.style.width = '200px';
+    menu.style.padding = '8px';
+    
+    boardState.members.forEach(m => {
+        const isAssigned = (currentOpenedCard.memberIds || []).includes(m.userId);
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = '8px';
+        item.innerHTML = `
+            <div class="member-avatar-sm">${(m.fullName || m.username || '?').charAt(0).toUpperCase()}</div>
+            <span style="flex:1">${escapeHtml(m.fullName || m.username)}</span>
+            ${isAssigned ? '<span style="color:var(--primary)">✓</span>' : ''}
+        `;
+        item.addEventListener('click', async (e2) => {
+            e2.stopPropagation();
+            if (!currentOpenedCard.memberIds) currentOpenedCard.memberIds = [];
+            
+            if (isAssigned) {
+                currentOpenedCard.memberIds = currentOpenedCard.memberIds.filter(id => id !== m.userId);
+                await apiFetch(`/lists/cards/${currentOpenedCard.id}/members/${m.userId}`, { method: 'DELETE' });
+            } else {
+                currentOpenedCard.memberIds.push(m.userId);
+                await apiFetch(`/lists/cards/${currentOpenedCard.id}/members/${m.userId}`, { method: 'POST' });
+            }
+            renderCardModalMembers();
+            updateOuterCard(currentOpenedCard);
+            closePopup(); 
+        });
+        menu.appendChild(item);
+    });
+    
+    document.body.appendChild(menu);
+    activePopup = menu;
+});
+
+document.getElementById('btn-add-label').addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePopup();
+    if (!currentOpenedCard || !boardState?.labels) return;
+    
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    
+    const menu = document.createElement('div');
+    menu.className = 'dropdown-menu';
+    menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+    menu.style.left = `${rect.left + window.scrollX - 150}px`;
+    menu.style.width = '200px';
+    menu.style.padding = '8px';
+    
+    boardState.labels.forEach(l => {
+        const isAssigned = (currentOpenedCard.labelIds || []).includes(l.id);
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = '8px';
+        item.innerHTML = `
+            <span class="card-label-chip" style="background:${l.color}; flex:1;">${escapeHtml(l.name)}</span>
+            ${isAssigned ? '<span style="color:var(--primary)">✓</span>' : ''}
+        `;
+        item.addEventListener('click', async (e2) => {
+            e2.stopPropagation();
+            if (!currentOpenedCard.labelIds) currentOpenedCard.labelIds = [];
+            
+            if (isAssigned) {
+                currentOpenedCard.labelIds = currentOpenedCard.labelIds.filter(id => id !== l.id);
+                await apiFetch(`/lists/cards/${currentOpenedCard.id}/labels/${l.id}`, { method: 'DELETE' });
+            } else {
+                currentOpenedCard.labelIds.push(l.id);
+                await apiFetch(`/lists/cards/${currentOpenedCard.id}/labels/${l.id}`, { method: 'POST' });
+            }
+            renderCardModalLabels();
+            updateOuterCard(currentOpenedCard);
+            closePopup();
+        });
+        menu.appendChild(item);
+    });
+    
+    // Form tạo nhãn mới
+    const divider = document.createElement('hr');
+    divider.style.margin = '4px 0';
+    divider.style.borderTop = '1px solid var(--border)';
+    divider.style.borderBottom = 'none';
+    menu.appendChild(divider);
+
+    const createForm = document.createElement('div');
+    createForm.style.display = 'flex';
+    createForm.style.gap = '4px';
+    createForm.style.marginTop = '4px';
+    createForm.innerHTML = `
+        <input type="text" id="new-label-name" placeholder="Tên nhãn..." class="form-input" style="flex:1; padding: 4px 8px; font-size: 12px; min-width:0;">
+        <input type="color" id="new-label-color" value="#3b82f6" style="width: 28px; height: 28px; padding: 0; border: none; cursor: pointer; border-radius: 4px;">
+        <button id="btn-submit-label" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 12px;">+</button>
+    `;
+    menu.appendChild(createForm);
+
+    createForm.querySelector('#btn-submit-label').addEventListener('click', async (e3) => {
+        e3.stopPropagation();
+        const name = createForm.querySelector('#new-label-name').value.trim();
+        const color = createForm.querySelector('#new-label-color').value;
+        if (!name) return;
+
+        const res = await apiFetch(`/boards/${boardId}/labels`, {
+            method: 'POST',
+            body: JSON.stringify({ name, color })
+        });
+        if (res.ok) {
+            const newLabel = await res.json();
+            if (!boardState.labels) boardState.labels = [];
+            boardState.labels.push(newLabel);
+
+            if (!currentOpenedCard.labelIds) currentOpenedCard.labelIds = [];
+            currentOpenedCard.labelIds.push(newLabel.id);
+            await apiFetch(`/lists/cards/${currentOpenedCard.id}/labels/${newLabel.id}`, { method: 'POST' });
+
+            renderCardModalLabels();
+            updateOuterCard(currentOpenedCard);
+            closePopup();
+        }
+    });
+    createForm.addEventListener('click', e => e.stopPropagation());
+
+    document.body.appendChild(menu);
+    activePopup = menu;
+});
 
 // =============================================
 // List Menu
@@ -768,6 +1005,26 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 });
 
 // =============================================
+// Mời thành viên (Workspace/Board)
+// =============================================
+document.getElementById('btn-invite-member').addEventListener('click', async () => {
+    const username = prompt("Nhập tên đăng nhập (username) của người bạn muốn mời vào Workspace:");
+    if (!username || !username.trim()) return;
+    
+    const res = await apiFetch(`/boards/${boardId}/members?username=${encodeURIComponent(username.trim())}`, {
+        method: 'POST'
+    });
+    
+    if (res.ok) {
+        showToast("Đã thêm thành viên!", "success");
+        loadBoardState();
+    } else {
+        const errorMsg = await res.text();
+        showToast(`Lỗi: ${errorMsg || 'Không tìm thấy người dùng'}`, "error");
+    }
+});
+
+// =============================================
 // Tiện ích
 // =============================================
 function escapeHtml(str) {
@@ -776,6 +1033,32 @@ function escapeHtml(str) {
 }
 
 // =============================================
+// WebSocket Realtime
+// =============================================
+let ws = null;
+function connectWebSocket() {
+    if (ws) ws.close();
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    ws = new WebSocket(`${protocol}//${host}/ws/board/${boardId}`);
+    
+    ws.onmessage = function(event) {
+        if (event.data === 'UPDATE_BOARD') {
+            // Không cập nhật nếu đang kéo thả để tránh lỗi gián đoạn
+            if (!draggingCardId) {
+                loadBoardState();
+            }
+        }
+    };
+    
+    ws.onclose = function() {
+        console.log('WebSocket disconnected, retrying in 5s...');
+        setTimeout(connectWebSocket, 5000);
+    };
+}
+
+// =============================================
 // Khởi động
 // =============================================
 loadBoardState();
+connectWebSocket();

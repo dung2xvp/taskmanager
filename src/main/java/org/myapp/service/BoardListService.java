@@ -11,6 +11,7 @@ import org.myapp.dto.board.BoardListCreateDto;
 import org.myapp.dto.board.BoardListDto;
 import org.myapp.entity.Board;
 import org.myapp.entity.BoardList;
+import org.myapp.websocket.BoardWebSocket;
 
 @ApplicationScoped
 public class BoardListService {
@@ -20,6 +21,9 @@ public class BoardListService {
 
     @Inject
     BoardDao boardDao;
+
+    @Inject
+    BoardWebSocket boardWebSocket;
 
     @Transactional
     public BoardListDto createList(Long boardId, BoardListCreateDto dto) {
@@ -38,6 +42,7 @@ public class BoardListService {
         list.position = nextPos;
         boardListDao.persist(list);
 
+        boardWebSocket.broadcast(boardId, "UPDATE_BOARD");
         return toDto(list);
     }
 
@@ -49,6 +54,8 @@ public class BoardListService {
         }
 
         list.name = dto.name.trim();
+
+        boardWebSocket.broadcast(boardId, "UPDATE_BOARD");
         return toDto(list);
     }
 

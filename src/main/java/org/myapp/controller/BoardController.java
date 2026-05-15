@@ -16,6 +16,8 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.myapp.dto.board.BoardCreateDto;
 import org.myapp.dto.board.BoardStateDto;
 import org.myapp.dto.board.BoardSummaryDto;
+import org.myapp.dto.board.LabelCreateDto;
+import org.myapp.dto.board.LabelDto;
 import org.myapp.service.BoardQueryService;
 import org.myapp.service.BoardService;
 
@@ -69,6 +71,29 @@ public class BoardController {
     @Path("/{id}")
     public Response deleteBoard(@PathParam("id") Long id) {
         boardService.deleteBoard(id);
+        return Response.noContent().build();
+    }
+
+    /**
+     * Tạo Nhãn dán (Label) mới cho Board
+     */
+    @POST
+    @Path("/{id}/labels")
+    public Response createLabel(@PathParam("id") Long id, @Valid LabelCreateDto dto) {
+        LabelDto result = boardService.createLabel(id, dto);
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    /**
+     * Thêm thành viên vào Board
+     */
+    @POST
+    @Path("/{id}/members")
+    public Response addMember(@PathParam("id") Long id, @jakarta.ws.rs.QueryParam("username") String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Username is required").build();
+        }
+        boardService.addMember(id, username);
         return Response.noContent().build();
     }
 }

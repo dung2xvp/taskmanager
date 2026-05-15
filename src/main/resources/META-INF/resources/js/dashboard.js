@@ -106,8 +106,8 @@ function renderEmptyState() {
     empty.innerHTML = `
         <div class="empty-state-icon">🗂️</div>
         <div class="empty-state-title">Chưa có bảng nào</div>
-        <p class="empty-state-desc">Tạo bảng làm việc đầu tiên của bạn để bắt đầu quản lý công việc theo mô hình Kanban.</p>
-        <button class="btn btn-primary" onclick="openModal()">+ Tạo bảng đầu tiên</button>
+        <p class="empty-state-desc">Tạo Workspace đầu tiên của bạn để bắt đầu quản lý công việc theo mô hình Kanban.</p>
+        <button class="btn btn-primary" onclick="openModal()">+ Tạo Workspace đầu tiên</button>
     `;
     return empty;
 }

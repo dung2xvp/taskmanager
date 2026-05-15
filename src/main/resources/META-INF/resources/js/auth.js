@@ -66,8 +66,13 @@ function saveSession(data) {
 // =============================================
 (function checkAlreadyLoggedIn() {
     const token = localStorage.getItem('token');
+    const role = localStorage.getItem('systemRole');
     if (token) {
-        window.location.href = '/dashboard.html';
+        if (role === 'ADMIN') {
+            window.location.href = '/admin.html';
+        } else {
+            window.location.href = '/dashboard.html';
+        }
     }
 })();
 
@@ -97,7 +102,13 @@ document.getElementById('login-form').addEventListener('submit', async function 
 
         saveSession(data);
         showToast(`Chào mừng trở lại, ${data.fullName}! 👋`, 'success');
-        setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+        setTimeout(() => { 
+            if (data.systemRole === 'ADMIN') {
+                window.location.href = '/admin.html';
+            } else {
+                window.location.href = '/dashboard.html';
+            }
+        }, 800);
 
     } catch (err) {
         showToast(err.message, 'error');

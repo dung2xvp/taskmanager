@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -16,6 +17,8 @@ import org.myapp.dto.board.CardCreateDto;
 import org.myapp.dto.board.CardDto;
 import org.myapp.dto.board.CardMoveDto;
 import org.myapp.dto.board.CardUpdateDto;
+import org.myapp.dto.board.CardCommentCreateDto;
+import org.myapp.dto.board.CardCommentDto;
 import org.myapp.service.CardService;
 
 @Path("/lists")
@@ -34,7 +37,7 @@ public class CardController {
     @POST
     @Path("/{listId}/cards")
     public Response createCard(@PathParam("listId") Long listId,
-                               @Valid CardCreateDto dto) {
+            @Valid CardCreateDto dto) {
         CardDto result = cardService.createCard(listId, dto);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -46,7 +49,7 @@ public class CardController {
     @PUT
     @Path("/cards/{cardId}")
     public CardDto updateCard(@PathParam("cardId") Long cardId,
-                              @Valid CardUpdateDto dto) {
+            @Valid CardUpdateDto dto) {
         return cardService.updateCard(cardId, dto);
     }
 
@@ -57,7 +60,7 @@ public class CardController {
     @PUT
     @Path("/cards/{cardId}/move")
     public Response moveCard(@PathParam("cardId") Long cardId,
-                             @Valid CardMoveDto dto) {
+            @Valid CardMoveDto dto) {
         cardService.moveCard(cardId, dto);
         return Response.noContent().build();
     }
@@ -71,5 +74,64 @@ public class CardController {
     public Response deleteCard(@PathParam("cardId") Long cardId) {
         cardService.deleteCard(cardId);
         return Response.noContent().build();
+    }
+
+    /**
+     * Gắn nhãn cho Card
+     */
+    @POST
+    @Path("/cards/{cardId}/labels/{labelId}")
+    public Response addLabel(@PathParam("cardId") Long cardId, @PathParam("labelId") Long labelId) {
+        cardService.addLabel(cardId, labelId);
+        return Response.noContent().build();
+    }
+
+    /**
+     * Gỡ nhãn khỏi Card
+     */
+    @DELETE
+    @Path("/cards/{cardId}/labels/{labelId}")
+    public Response removeLabel(@PathParam("cardId") Long cardId, @PathParam("labelId") Long labelId) {
+        cardService.removeLabel(cardId, labelId);
+        return Response.noContent().build();
+    }
+
+    /**
+     * Phân công thành viên cho Card
+     */
+    @POST
+    @Path("/cards/{cardId}/members/{userId}")
+    public Response addMember(@PathParam("cardId") Long cardId, @PathParam("userId") Long userId) {
+        cardService.addMember(cardId, userId);
+        return Response.noContent().build();
+    }
+
+    /**
+     * Gỡ thành viên khỏi Card
+     */
+    @DELETE
+    @Path("/cards/{cardId}/members/{userId}")
+    public Response removeMember(@PathParam("cardId") Long cardId, @PathParam("userId") Long userId) {
+        cardService.removeMember(cardId, userId);
+        return Response.noContent().build();
+    }
+
+    /**
+     * Thêm Bình luận cho Card
+     */
+    @POST
+    @Path("/cards/{cardId}/comments")
+    public Response addComment(@PathParam("cardId") Long cardId, @Valid CardCommentCreateDto dto) {
+        CardCommentDto result = cardService.addComment(cardId, dto);
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    /**
+     * Lấy danh sách Bình luận của Card
+     */
+    @GET
+    @Path("/cards/{cardId}/comments")
+    public java.util.List<CardCommentDto> getComments(@PathParam("cardId") Long cardId) {
+        return cardService.getComments(cardId);
     }
 }
