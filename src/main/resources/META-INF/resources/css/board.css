@@ -499,8 +499,9 @@
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(4px);
     display: none;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: clamp(16px, 4vh, 40px) var(--space-4);
     z-index: var(--z-modal, 9999);
     opacity: 0;
     transition: opacity var(--transition-base);
@@ -513,13 +514,13 @@
 
 /* ---- Card Modal ---- */
 .card-modal {
-    background: var(--bg-elevated);
+    background: var(--bg-surface);
     border: 1px solid var(--glass-border);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 680px;
-    max-height: 85vh;
-    overflow-y: auto;
+    max-width: 920px;
+    max-height: calc(100vh - 48px);
+    overflow: hidden;
     box-shadow: var(--shadow-lg);
     transform: scale(0.95) translateY(10px);
     transition: transform var(--transition-base);
@@ -533,9 +534,10 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: var(--space-6);
+    padding: var(--space-5) var(--space-6);
     border-bottom: 1px solid var(--border);
     gap: var(--space-4);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .card-modal-title-wrap {
@@ -552,7 +554,7 @@
 }
 
 .card-modal-title-input {
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.3;
@@ -573,14 +575,53 @@
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
-.card-modal-body {
-    display: grid;
-    grid-template-columns: 1fr 200px;
-    gap: var(--space-6);
-    padding: var(--space-6);
+.modal-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: var(--text-md);
+    line-height: 1;
+    transition: all var(--transition-fast);
 }
 
-.card-modal-section { margin-bottom: var(--space-5); }
+.modal-close:hover {
+    background: var(--bg-overlay);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--text-primary);
+}
+
+.card-modal-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 0;
+    max-height: calc(100vh - 136px);
+    overflow: hidden;
+}
+
+.card-modal-main {
+    overflow-y: auto;
+    padding: var(--space-6);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.card-modal-main::-webkit-scrollbar { width: 6px; }
+.card-modal-main::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+.card-modal-section {
+    margin-bottom: var(--space-6);
+}
+
+.card-modal-section:last-child {
+    margin-bottom: 0;
+}
 
 .card-section-label {
     font-size: var(--text-xs);
@@ -588,7 +629,7 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-3);
 }
 
 .card-modal-desc-input {
@@ -596,23 +637,102 @@
     color: var(--text-primary);
     line-height: 1.5;
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid transparent;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: var(--space-3);
+    padding: var(--space-4);
     resize: vertical;
     font-family: inherit;
     transition: all var(--transition-fast);
-    min-height: 80px;
+    min-height: 120px;
 }
 .card-modal-desc-input:hover {
     background: rgba(255, 255, 255, 0.06);
 }
 .card-modal-desc-input:focus {
-    background: var(--bg-surface);
+    background: var(--bg-overlay);
     border-color: var(--primary);
     outline: none;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+#card-desc-actions {
+    margin-top: var(--space-3) !important;
+    gap: var(--space-2);
+}
+
+#new-comment-input {
+    min-height: 72px !important;
+    margin-bottom: 0 !important;
+}
+
+.card-modal-section > div[style*="display: flex"] {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+}
+
+#btn-post-comment {
+    margin-top: var(--space-2);
+}
+
+#card-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3) !important;
+}
+
+.card-modal-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    overflow-y: auto;
+    padding: var(--space-6) var(--space-5);
+    background: rgba(255, 255, 255, 0.025);
+    border-left: 1px solid var(--border);
+}
+
+.card-modal-sidebar > .card-sidebar-label,
+.card-modal-sidebar > .card-sidebar-labels,
+.card-modal-sidebar > .card-sidebar-members,
+.card-modal-sidebar > .form-input {
+    margin-top: 0 !important;
+}
+
+.card-modal-sidebar > .card-sidebar-label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: var(--space-2);
+}
+
+.card-modal-sidebar > .card-sidebar-label {
+    padding: var(--space-3);
+    margin-bottom: calc(-1 * var(--space-5));
+    color: #dbe4ff;
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(129, 140, 248, 0.32);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.card-modal-sidebar > .card-sidebar-members,
+.card-modal-sidebar > .card-sidebar-labels,
+.card-modal-sidebar > #card-modal-due {
+    padding: var(--space-3);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(129, 140, 248, 0.22);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.card-modal-sidebar .btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 !important;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    line-height: 1;
 }
 
 .card-sidebar-label {
@@ -627,13 +747,17 @@
 .card-sidebar-members {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--space-2);
+    min-height: 32px;
+    align-items: center;
 }
 
 .card-sidebar-labels {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--space-2);
+    min-height: 28px;
+    align-items: center;
 }
 
 .card-label-chip {
@@ -649,6 +773,13 @@
     color: var(--text-secondary);
 }
 
+#card-modal-due {
+    width: 100% !important;
+    min-height: 38px;
+    padding: 8px 10px !important;
+    font-size: var(--text-sm) !important;
+}
+
 /* ---- Drag placeholder ---- */
 .card-drop-placeholder {
     height: 60px;
@@ -662,7 +793,32 @@
     .board-navbar { padding: 0 var(--space-3); }
     .navbar-brand-center { display: none; }
     .kanban-scroll-wrapper { padding: var(--space-3); }
-    .card-modal-body { grid-template-columns: 1fr; }
+    .modal-backdrop {
+        align-items: stretch;
+        padding: var(--space-3);
+    }
+    .card-modal {
+        max-height: calc(100vh - 24px);
+    }
+    .card-modal-header {
+        padding: var(--space-4);
+    }
+    .card-modal-title-input {
+        font-size: var(--text-lg);
+    }
+    .card-modal-body {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+    }
+    .card-modal-main,
+    .card-modal-sidebar {
+        overflow: visible;
+        padding: var(--space-4);
+    }
+    .card-modal-sidebar {
+        border-left: none;
+        border-top: 1px solid var(--border);
+    }
 }
 
 /* ---- Dropdown Menu ---- */
