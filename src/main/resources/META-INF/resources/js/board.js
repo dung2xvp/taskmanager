@@ -106,6 +106,12 @@ function renderBoard(state) {
         preview.appendChild(av);
     });
 
+    const isOwner = state.board?.ownerId == userId;
+    const btnManage = document.getElementById('btn-manage-members');
+    if (btnManage) {
+        btnManage.style.display = isOwner ? 'inline-block' : 'none';
+    }
+
     // Render Kanban columns
     const board = document.getElementById('kanban-board');
     board.innerHTML = '';
@@ -1007,22 +1013,28 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 // =============================================
 // Mời thành viên (Workspace/Board)
 // =============================================
-document.getElementById('btn-invite-member').addEventListener('click', async () => {
-    const username = prompt("Nhập tên đăng nhập (username) của người bạn muốn mời vào Workspace:");
-    if (!username || !username.trim()) return;
-    
-    const res = await apiFetch(`/boards/${boardId}/members?username=${encodeURIComponent(username.trim())}`, {
-        method: 'POST'
+const btnModalInvite = document.getElementById('btn-modal-invite-member');
+if (btnModalInvite) {
+    btnModalInvite.addEventListener('click', async () => {
+        const input = document.getElementById('invite-username-input');
+        const username = input.value;
+        if (!username || !username.trim()) return;
+        
+        const res = await apiFetch(`/boards/${boardId}/members?username=${encodeURIComponent(username.trim())}`, {
+            method: 'POST'
+        });
+        
+        if (res.ok) {
+            showToast("Đã thêm thành viên!", "success");
+            input.value = '';
+            await loadBoardState();
+            renderManageMembersList(); // Cập nhật lại list trong modal
+        } else {
+            const errorMsg = await res.text();
+            showToast(`Lỗi: ${errorMsg || 'Không tìm thấy người dùng'}`, "error");
+        }
     });
-    
-    if (res.ok) {
-        showToast("Đã thêm thành viên!", "success");
-        loadBoardState();
-    } else {
-        const errorMsg = await res.text();
-        showToast(`Lỗi: ${errorMsg || 'Không tìm thấy người dùng'}`, "error");
-    }
-});
+}
 
 // =============================================
 // Tiện ích
@@ -1055,6 +1067,77 @@ function connectWebSocket() {
         console.log('WebSocket disconnected, retrying in 5s...');
         setTimeout(connectWebSocket, 5000);
     };
+}
+
+// =============================================
+// Manage Members
+// =============================================
+const btnManageMembers = document.getElementById('btn-manage-members');
+if (btnManageMembers) {
+    btnManageMembers.addEventListener('click', openManageMembersModal);
+}
+
+function openManageMembersModal() {
+    const modal = document.getElementById('manage-members-modal');
+    modal.classList.add('open');
+    renderManageMembersList();
+    // Click backdrop để đóng
+    modal.addEventListener('click', function onBackdropClick(e) {
+        if (e.target === modal) {
+            closeManageMembersModal();
+            modal.removeEventListener('click', onBackdropClick);
+        }
+    }, { once: false });
+}
+
+function closeManageMembersModal() {
+    document.getElementById('manage-members-modal').classList.remove('open');
+}
+
+function renderManageMembersList() {
+    const listEl = document.getElementById('manage-members-list');
+    listEl.innerHTML = '';
+    
+    if (!boardState || !boardState.members || boardState.members.length === 0) {
+        listEl.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align:center; padding: 16px;">Chưa có thành viên nào.</div>';
+        return;
+    }
+    
+    boardState.members.forEach(m => {
+        const isOwner = m.role === 'OWNER';
+        const item = document.createElement('div');
+        item.className = 'member-row';
+        item.innerHTML = `
+            <div class="member-row-info">
+                <div class="member-avatar-sm" style="margin:0; flex-shrink:0;">${(m.fullName || m.username || '?').charAt(0).toUpperCase()}</div>
+                <div>
+                    <div class="member-row-name">${escapeHtml(m.fullName || m.username)}</div>
+                    <div class="member-row-role">${isOwner ? '👑 Chủ sở hữu' : '👤 Thành viên'}</div>
+                </div>
+            </div>
+            ${!isOwner ? `<button class="btn-remove-member" onclick="removeMember(${m.userId})">Xóa</button>` : ''}
+        `;
+        listEl.appendChild(item);
+    });
+}
+
+async function removeMember(userIdToRemove) {
+    if (!confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi bảng?')) return;
+    
+    const res = await apiFetch(`/boards/${boardId}/members/${userIdToRemove}`, {
+        method: 'DELETE'
+    });
+    
+    if (res && res.ok) {
+        showToast('Đã xóa thành viên thành công!', 'success');
+        // WebSocket sẽ tự trigger loadBoardState() nếu kết nối bình thường
+        // Cứ gọi thêm lần nữa để chắc ăn Modal cập nhật ngay
+        await loadBoardState();
+        renderManageMembersList();
+    } else if (res) {
+        const msg = await res.text();
+        showToast(msg || 'Lỗi khi xóa thành viên', 'error');
+    }
 }
 
 // =============================================

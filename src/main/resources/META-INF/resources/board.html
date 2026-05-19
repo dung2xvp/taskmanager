@@ -8,6 +8,126 @@
     <link rel="stylesheet" href="/css/base.css"/>
     <link rel="stylesheet" href="/css/board.css"/>
     <link rel="stylesheet" href="/css/theme.css"/>
+    <style>
+        /* Modal Quản lý thành viên - self-contained styles */
+        #manage-members-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        #manage-members-modal.open {
+            display: flex;
+        }
+        #manage-members-inner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 460px;
+            max-width: 90vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        #manage-members-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        #manage-members-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        #manage-members-header button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+        #manage-members-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        #manage-invite-row {
+            display: flex;
+            gap: 8px;
+        }
+        #manage-invite-row input {
+            flex: 1;
+        }
+        #manage-members-subtitle {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+        #manage-members-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .member-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-elevated);
+        }
+        .member-row-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .member-row-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .member-row-role {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .btn-remove-member {
+            padding: 4px 12px;
+            font-size: 13px;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .btn-remove-member:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
 </head>
 <body>
 
@@ -44,7 +164,7 @@
         <div class="board-header-info">
             <h1 class="board-name" id="board-name-heading">...</h1>
             <span class="board-visibility-tag" id="board-visibility-tag"></span>
-            <button class="btn btn-ghost btn-sm" id="btn-invite-member" style="margin-left: 12px; border: 1px dashed var(--border); padding: 4px 12px; font-size: 13px;">+ Mời thành viên</button>
+            <button class="btn btn-ghost btn-sm" id="btn-manage-members" style="margin-left: 12px; border: 1px solid var(--border); padding: 4px 12px; font-size: 13px; display: none;">Quản lý thành viên</button>
         </div>
     </div>
 
@@ -127,6 +247,26 @@
                 <div class="card-sidebar-labels" id="card-modal-labels"></div>
                 <div class="card-sidebar-label" style="margin-top:16px">Deadline</div>
                 <input type="date" class="form-input" id="card-modal-due" style="width: 100%; padding: 6px; font-size: 13px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Members Modal -->
+<div id="manage-members-modal">
+    <div id="manage-members-inner">
+        <div id="manage-members-header">
+            <h3>👥 Quản lý thành viên</h3>
+            <button onclick="closeManageMembersModal()">&times;</button>
+        </div>
+        <div id="manage-members-body">
+            <div id="manage-invite-row">
+                <input type="text" class="form-input" id="invite-username-input" placeholder="Nhập tên đăng nhập để mời..." />
+                <button class="btn btn-primary" id="btn-modal-invite-member">Mời</button>
+            </div>
+            <div id="manage-members-subtitle">Danh sách thành viên</div>
+            <div id="manage-members-list">
+                <!-- Member items will be injected here -->
             </div>
         </div>
     </div>

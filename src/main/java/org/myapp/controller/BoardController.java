@@ -96,4 +96,14 @@ public class BoardController {
         boardService.addMember(id, username);
         return Response.noContent().build();
     }
+
+    /**
+     * Xóa thành viên khỏi Board
+     */
+    @DELETE
+    @Path("/{id}/members/{userId}")
+    public Response removeMember(@PathParam("id") Long id, @PathParam("userId") Long userId) {
+        boardService.removeMember(id, userId);
+        return Response.noContent().build();
+    }
 }

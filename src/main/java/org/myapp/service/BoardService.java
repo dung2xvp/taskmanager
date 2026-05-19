@@ -127,4 +127,26 @@ public class BoardService {
             boardWebSocket.broadcast(boardId, "UPDATE_BOARD");
         }
     }
+
+    @Transactional
+    public void removeMember(Long boardId, Long userIdToRemove) {
+        Board board = boardDao.findById(boardId);
+        if (board == null) throw new BadRequestException("Board not found");
+
+        // Chỉ owner mới có quyền xóa
+        if (!board.owner.id.equals(currentUser.getUser().id)) {
+            throw new BadRequestException("Bạn không có quyền thực hiện chức năng này");
+        }
+
+        // Không thể tự xóa owner
+        if (board.owner.id.equals(userIdToRemove)) {
+            throw new BadRequestException("Không thể xóa Owner khỏi bảng");
+        }
+
+        BoardMember bm = boardMemberDao.find("board.id = ?1 and user.id = ?2", boardId, userIdToRemove).firstResult();
+        if (bm != null) {
+            boardMemberDao.delete(bm);
+            boardWebSocket.broadcast(boardId, "UPDATE_BOARD");
+        }
+    }
 }
